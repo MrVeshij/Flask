@@ -3,3 +3,7 @@ class Configuration(): # Конфигурации которые читаютс�
 	SQLALCHEMY_TRACK_MODIFICATIONS = False # снимает предупреждающую строку в сервере при работе
 	SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:@localhost/test1' # Указываем базу данных и место обращения к данным
 	SECRET_KEY = 'secret key must be secret'
+
+	### Flask-security
+	SECURITY_PASSWORD_SALT = 'salt'
+	SECURITY_PASSWORD_HASH = 'sha512_crypt'
