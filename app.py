@@ -28,25 +28,33 @@ manager.add_command('db', MigrateCommand)
 from models import *
 ### ADMIN ###
 
-class AdminView(ModelView):
+class AdminMixin:
 	def is_accessible(self):
 		return current_user.has_role('admin')
 
 	def inaccessible_callback(self, name, **kwargs):
 		return redirect( url_for('security.login', next=request.url ))
 
+class BaseModelView(ModelView):
+	def on_model_change(self, form, model, is_created):
+		model.generate_slug()
+		return super().on_model_change(form, model, is_created)
 
-class HomeAdminView(AdminIndexView):
-	def is_accessible(self):
-		return current_user.has_role('admin')
+class AdminView(AdminMixin, ModelView):
+	pass
 
-	def inaccessible_callback(self, name, **kwargs):
-		return redirect( url_for('security.login', next=request.url ))
+class HomeAdminView(AdminMixin, AdminIndexView):
+	pass
 
+class PostAdminView(AdminMixin, BaseModelView):
+	form_columns = ['title', 'body', 'tags']
+
+class TagAdminView(AdminMixin, BaseModelView):
+	form_columns = ['name', 'posts']
 
 admin = Admin(app, 'FlaskApplication', url='/', index_view=HomeAdminView(name='Home'))
-admin.add_view(AdminView(Post, db.session))
-admin.add_view(AdminView(Tag, db.session))
+admin.add_view(PostAdminView(Post, db.session))
+admin.add_view(TagAdminView(Tag, db.session))
 
 ###Flask-security
 
